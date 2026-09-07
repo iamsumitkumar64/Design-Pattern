@@ -2,42 +2,44 @@ interface NotificationInterface {
     notifyUser(): void;
 }
 
-export class SendSMS implements NotificationInterface {
-    public notifyUser() {
+class SendSMS implements NotificationInterface {
+    notifyUser() {
         console.log("SMS Sent");
     }
 }
-export class SendMail implements NotificationInterface {
-    public notifyUser() {
+
+class SendMail implements NotificationInterface {
+    notifyUser() {
         console.log("Mail Sent");
     }
 }
 
-class NotificationService {
-    private notification: NotificationInterface;
-    constructor(notification: NotificationInterface) {
-        this.notification = notification;
-    }
-
-    public sendNotification() {
-        this.notification.notifyUser();
-    }
-}
-
-const smsService = new NotificationService(new SendSMS());
-smsService.sendNotification();
-
-
-
-
-
-// new new just add this
-
 class SendWhatsApp implements NotificationInterface {
-    public notifyUser() {
+    notifyUser() {
         console.log("WhatsApp Sent");
     }
 }
 
-const whatsappService = new NotificationService(new SendWhatsApp());
-whatsappService.sendNotification();
+type NotifyType = "MAIL" | "SMS" | "WhatsApp";
+
+// Factory
+class NotificationFactory {
+    static create(type: NotifyType): NotificationInterface {
+        switch (type) {
+            case "SMS": return new SendSMS();
+            case "MAIL": return new SendMail();
+            case "WhatsApp": return new SendWhatsApp();
+            default:
+                throw new Error(`Invalid Notify type`);
+        }
+    }
+}
+
+class NotificationService {
+    public static sendNotification(type: NotifyType) {
+        const notification = NotificationFactory.create(type);
+        notification.notifyUser();
+    }
+}
+
+NotificationService.sendNotification("WhatsApp");
