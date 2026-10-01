@@ -1,6 +1,13 @@
-type ROLES = 'admin' | 'librarian' | 'student';
+export type ROLES = 'admin' | 'librarian' | 'student';
 
-type BOOK_TYPE = 'confidential' | 'common' | 'staff';
+export type BOOK_TYPE = 'confidential' | 'common' | 'staff';
+
+const PERMISSION_STATE: Record<ROLES, BOOK_TYPE[]> = {
+    admin: ['confidential', 'common', 'staff'],
+    librarian: ['common', 'staff'],
+    student: ['common'],
+};
+
 
 class Book {
     private user_role: ROLES;
@@ -10,18 +17,17 @@ class Book {
     }
 
     getBook(book_type: BOOK_TYPE) {
-        if (this.user_role == 'admin') {
-            return `${book_type} Access`;
-        }
-        else if (this.user_role == 'librarian' && (book_type == 'common' || book_type == 'staff')) {
-            const isCommon = book_type == 'common';
-            const isStaff = book_type == 'staff';
-            return isCommon ? `${book_type} Access` : isStaff ? `${book_type} Access` : 'No Access';
-        } else if (this.user_role == 'student' && book_type == 'common') {
-            return `${book_type} Access`;
-        } else {
+        const permissions = PERMISSION_STATE?.[this.user_role];
+        if (!permissions) {
             return 'No Access';
         }
+
+        const isAllowed = permissions.includes(book_type);
+        if (!isAllowed) {
+            return 'No Access';
+        }
+
+        return `${book_type} Access`;
     }
 }
 let book;
